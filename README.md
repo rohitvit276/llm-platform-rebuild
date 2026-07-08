@@ -1,0 +1,1 @@
+This project is to replicate the original llm project created by claude AI. The efforts will be manual and will be built completely from scratch.
