@@ -1,96 +1,106 @@
-AI Model Server (llama.cpp)
-This project runs a local AI inference server using llama.cpp containerized with Docker. It exposes an OpenAI-compatible API to allow local LLM interaction.
+# AI Model Server (llama.cpp)
 
-Architecture Overview
-The server runs a local model within a Docker container, exposing an HTTP API that follows the OpenAI Chat Completions contract.
+This project runs a local AI inference server using **llama.cpp**, containerized with Docker. It exposes an **OpenAI-compatible API** to enable local LLM interaction.
 
-Prerequisites
-Docker Desktop installed and running.
+## Architecture Overview
 
-Model file: A .gguf model file (e.g., qwen2.5-0.5b-instruct-q4_k_m.gguf).
+The server runs a local model inside a Docker container and exposes an HTTP API that follows the **OpenAI Chat Completions** contract.
 
-Setup & Running
-Download the model and place it in your ./models directory.
+## Prerequisites
 
-Launch the Server:
-Run the following command (adjusting the path to your local model folder):
+- **Docker Desktop** installed and running.
+- A **`.gguf` model file** (for example: `qwen2.5-0.5b-instruct-q4_k_m.gguf`).
 
-Bash
+## Setup and Running
+
+1. Download the model and place it in your `./models` directory.
+2. Launch the server using the command below (adjust the path to your local model folder):
+
+```bash
 docker run -d -p 8080:8080 -v "/path/to/your/models:/models" ghcr.io/ggml-org/llama.cpp:server --model "/models/qwen2.5-0.5b-instruct-q4_k_m.gguf" --host 0.0.0.0 --port 8080
-API Usage
-The server implements the standard /v1/chat/completions endpoint.
+```
 
-Testing the API
-Create a file named body.json:
+## API Usage
 
-JSON
+The server implements the standard endpoint:
+
+- `POST /v1/chat/completions`
+
+## Testing the API
+
+Create a file named `body.json`:
+
+```json
 {
   "model": "qwen2.5",
   "messages": [
-    {"role": "user", "content": "Who is the prime minister of India?"}
+    { "role": "user", "content": "Who is the prime minister of India?" }
   ]
 }
-Send the request using curl:
+```
 
-Bash
+Send the request using `curl`:
+
+```bash
 curl.exe -X POST http://localhost:8080/v1/chat/completions -H "Content-Type: application/json" -d "@body.json"
-Observability
-Health Check: GET http://localhost:8080/health
+```
 
-Metrics: GET http://localhost:8080/metrics (Requires --metrics flag at startup)
+## Observability
 
+- **Health check:** `GET http://localhost:8080/health`
+- **Metrics:** `GET http://localhost:8080/metrics` (requires the `--metrics` flag at startup)
 
-what is GGUF?
+## What is GGUF?
 
-GGUF stands for GPT-Generated Unified Format. It is a specialized binary file format designed to store Large Language Models (LLMs) so they can be run efficiently on consumer-grade hardware, like your laptop's CPU and RAM, rather than requiring massive, expensive server GPUs.
+**GGUF** stands for **GPT-Generated Unified Format**. It is a specialized binary file format designed to store large language models (LLMs) so they can run efficiently on consumer-grade hardware (such as laptops and desktops).
 
-It was created by the llama.cpp project
+It was created by the **llama.cpp** project.
 
-What is llama.cpp?
+## What is llama.cpp?
 
-At its core, llama.cpp is a high-performance software library designed to run Large Language Models (LLMs)—like Llama, Qwen, or Mistral—on standard consumer hardware, such as your laptop, without needing expensive, server-grade GPUs.
+At its core, **llama.cpp** is a high-performance software library for running large language models (LLMs)—such as **Llama, Qwen, and Mistral**—on standard consumer hardware, without requiring large cloud infrastructure.
 
-It was created by Georgi Gerganov and has become the industry standard for local, private AI inference.
+It was created by **Georgi Gerganov** and has become a widely adopted standard for local and private AI inference.
 
-What is q4_k_m? 
+## What is Q4_K_M?
 
-Q4_K_M is a widely used quantization format in the ecosystem of local Large Language Models (LLMs), specifically designed for use with the GGUF file format and the llama.cpp engine.  In simple terms, it is a compression method that shrinks a model’s file size to make it run on consumer hardware (like a personal PC or Mac) while keeping the loss in intelligence (quality) to an absolute minimum. 
+**Q4_K_M** is a widely used quantization format in the local LLM ecosystem, specifically designed for use with the **GGUF** file format and the **llama.cpp** runtime.
 
-Tokens Usage:
+In simple terms, it reduces model size and memory usage while preserving reasonable quality and speed.
 
-I observed that is uses about 35-50 tokens per second.
+## Token Usage
 
-What Surprised me ?
+I observed that it uses about **35–50 tokens per second**.
 
-It hallucinates a lot, and can answer a wrong answer for the same question when asked after a few minutes. It also misunderstands queries instead of clarifying and getting back to the user. Like below response:
+## What Surprised Me
 
-How large is India compared to the USA ?
+The model hallucinates frequently and can return different (and sometimes incorrect) answers to the same question when asked again after a few minutes.
 
-As of the latest information available to me, India's total population was approximately 3. 87 billion in 2021. The USA's population was approximately 3. 40 billion. Therefore, the ratio of India's population to the USA's population is roughly 1 to 1. 18.
-To find the exact ratio, you can perform the following calculation:
-3.87
- billion
-3.40
- billion
-=
-3.87
-3.40
-×
-1000
-≈
-1.18
-3.40 billion
-3.87 billion
-​
- = 
-3.40
-3.87
-​
- ×1000≈1.18
-This means that the USA's population is approximately 1. 18 times larger than India's population.
-It's important to note that this is a rough estimate and the actual population numbers can vary slightly.
+It also tends to misunderstand queries instead of asking clarifying questions. Example:
 
-Why it works faster on the host(11.9 t/s) directly vs the container(40-49 t/s) ?
+### Query
 
-This behaviour is probably because on the host the model has direct access to the resources like CPU, RAM, vRAM, vCPU but when in docker these get a little constrained because of the network interface.
+**How large is India compared to the USA?**
 
+### Observed incorrect behavior
+
+The model responded with a population-based and incorrect comparison, including inconsistent numbers and calculation formatting.
+
+## Why might it run faster on host vs container?
+
+You noted this behavior:
+
+- **Host (direct):** ~11.9 tokens/sec  
+- **Container:** ~40–49 tokens/sec
+
+That result is unusual, because containerized workloads are often similar or slightly slower than host execution unless configuration differs.
+
+Possible reasons include:
+
+- Different runtime flags between host and container runs.
+- Different CPU/GPU backends being used.
+- Threading configuration differences.
+- Docker resource limits or affinity settings.
+- Model loading/caching differences.
+
+In short, performance differences are usually due to **configuration mismatch**, not Docker alone.
