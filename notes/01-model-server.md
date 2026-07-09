@@ -79,6 +79,9 @@ In simple terms, it reduces model size and memory usage while preserving reasona
 
 The .gguf file downloaded for the model **qwen2.5-0.5b-instruct-q4_k_m.gguf** is around 380 MBs in size whereas a at FP16 the model sizes are approximately 1GB, so there is a clear 1/3rd size file. 
 
+## Token Usage
+
+I observed that it uses about **35–50 tokens per second**.
 
 ## What Surprised Me
 
