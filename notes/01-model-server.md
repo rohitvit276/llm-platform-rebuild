@@ -77,7 +77,7 @@ It was created by **Georgi Gerganov** and has become a widely adopted standard f
 
 The .gguf file downloaded for the model **qwen2.5-0.5b-instruct-q4_k_m.gguf** is around 380 MBs in size whereas a at FP16 the model sizes are approximately 1GB, so there is a clear 1/3rd size file. 
 
-## Token Usage
+## Inference speed (throughput)
 
 I observed that it uses about **35–50 tokens per second**.
 
@@ -102,7 +102,7 @@ The model responded with a population-based and incorrect comparison, including 
 - **Container:** ~40–49 tokens/sec
 
 So, when I ran the llama.cpp directly on host through llama CLI, it was different model named **gemma-3-1b-it-GGUF**. 
-The Model which I built on docker and ran it was **Hugggme/Qwen2.5-0.5B-Instruct-Q4_K_M-GGUF**. The difference between these models is that the gemma-3 is 1B model or the 1 Billion model while the Qwen2.5-05B is a 0.5B or 0.5 Billion Model, so clearly the gemma-3 is twice more resources in terms of knowledge compared to the Qwen2.5. Hence Qwen2.5 provides faster response comapred to the gemma-3b, because for every question gemma-3b has to look into a twice as wider set of items comapared to the Qwen2.5. every generated token passes through all of the model's weights, so 2× parameters ≈ 2× memory traffic per token; CPU inference speed is bound by memory bandwidth. 
+The Model which I built on docker and ran it was **Hugggme/Qwen2.5-0.5B-Instruct-Q4_K_M-GGUF**. The difference between these models is that the gemma-3 is 1B model or the 1 Billion model while the Qwen2.5-05B is a 0.5B or 0.5 Billion Model, so clearly the gemma-3 is twice more resources in terms of knowledge compared to the Qwen2.5. Hence Qwen2.5 provides faster response compared to the gemma-3b, because for every question gemma-3b has to look into a twice as wider set of items. every generated token passes through all of the model's weights, so 2× parameters ≈ 2× memory traffic per token; CPU inference speed is bound by memory bandwidth. 
 
 Hence, because of faster movement the 0.5B model will generate more tokens/second and the 1B model will produce lesser as observed above.
 
