@@ -2,6 +2,8 @@
 
 This project runs a local AI inference server using **llama.cpp**, containerized with Docker. It exposes an **OpenAI-compatible API** to enable local LLM interaction.
 
+Here is the reference repository. https://github.com/ggml-org/llama.cpp
+
 ## Architecture Overview
 
 The server runs a local model inside a Docker container and exposes an HTTP API that follows the **OpenAI Chat Completions** contract.
@@ -10,6 +12,7 @@ The server runs a local model inside a Docker container and exposes an HTTP API 
 
 - **Docker Desktop** installed and running.
 - A **`.gguf` model file** (for example: `qwen2.5-0.5b-instruct-q4_k_m.gguf`).
+- The Qwen2.5 model .gguf files can be downloaded from here - https://huggingface.co/Hugggme/Qwen2.5-0.5B-Instruct-Q4_K_M-GGUF/tree/main
 
 ## Setup and Running
 
@@ -18,6 +21,9 @@ The server runs a local model inside a Docker container and exposes an HTTP API 
 
 ```bash
 docker run -d -p 8080:8080 -v "/path/to/your/models:/models" ghcr.io/ggml-org/llama.cpp:server --model "/models/qwen2.5-0.5b-instruct-q4_k_m.gguf" --host 0.0.0.0 --port 8080
+```
+```Powershell
+docker run -p 8080:8080 -v "D:\projects\llm-platform-rebuild\models:/models" ghcr.io/ggml-org/llama.cpp:server --model "/models/qwen2.5-0.5b-instruct-q4_k_m.gguf" --host 0.0.0.0 --port 8080
 ```
 
 ## API Usage
@@ -64,9 +70,14 @@ It was created by **Georgi Gerganov** and has become a widely adopted standard f
 
 ## What is Q4_K_M?
 
-**Q4_K_M** is a widely used quantization format in the local LLM ecosystem, specifically designed for use with the **GGUF** file format and the **llama.cpp** runtime.
+## Understanding Q4_K_M
+**Q4** The models weight has been compressed to 4 bit precision instead of 16 bit precision. This helps reduce file size and memory requirements.
+**K_M (K-Quant, Medium)**: This is a specific, modern strategy for compressing models. It is loved by local users because of compressed and small sizes.
 
+**Q4_K_M** is a widely used quantization format in the local LLM ecosystem, specifically designed for use with the **GGUF** file format and the **llama.cpp** runtime.
 In simple terms, it reduces model size and memory usage while preserving reasonable quality and speed.
+
+The .gguf file downloaded for the model **qwen2.5-0.5b-instruct-q4_k_m.gguf** is around 380 MBs in size whereas a at FP16 the model sizes are approximately 1GB, so there is a clear 1/3rd size file. 
 
 ## Token Usage
 
@@ -88,19 +99,12 @@ The model responded with a population-based and incorrect comparison, including 
 
 ## Why might it run faster on host vs container?
 
-You noted this behavior:
 
 - **Host (direct):** ~11.9 tokens/sec  
 - **Container:** ~40–49 tokens/sec
 
-That result is unusual, because containerized workloads are often similar or slightly slower than host execution unless configuration differs.
+So, when I ran the llama.cpp directly on host through llama CLI, it was different model named **gemma-3-1b-it-GGUF**. 
+The Model which I built on docker and ran it was **Hugggme/Qwen2.5-0.5B-Instruct-Q4_K_M-GGUF**. The difference between these models is that the gemma-3 is 1B model or the 1 Billon model while the Qwen2.5-05B is a 0.5B or 0.5Billion Model, so clearly the gemma-3 is twice more resources in terms of knowledge compared to the Qwen2.5. Hence Qwen2.5 provides faster response comapred to the gemma-3b, because for every question gemma-3b has to look into a twice as wider set of items comapared to the Qwen2.5. 
 
-Possible reasons include:
+Hence, because of faster movement the 0.5B model will generate more tokens/second and the 1B modle will produce lesser as observed above.
 
-- Different runtime flags between host and container runs.
-- Different CPU/GPU backends being used.
-- Threading configuration differences.
-- Docker resource limits or affinity settings.
-- Model loading/caching differences.
-
-In short, performance differences are usually due to **configuration mismatch**, not Docker alone.
