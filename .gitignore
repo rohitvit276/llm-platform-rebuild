@@ -1,1 +1,3 @@
 models/
+gateway/.venv
+gateway/__pycache__
