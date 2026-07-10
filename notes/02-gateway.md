@@ -92,6 +92,13 @@ If you remove the gateway, the system can still work in small/simple setups, but
 7. **Breaking changes become riskier**  
    Internal service changes can leak to clients because there’s no stable façade layer.
 
+## What Surprised Me:
+
+The api gateway answers on port 9000, post configuration but the LLM app directly answers on port 8080.
+
+## why does the model hallucinate
+Large Language Models (LLMs) hallucinate confidently because they are probabilistic prediction engines, not knowledge databases. They are designed to predict the most likely next word in a sequence based on patterns they learned during training, and they lack an internal mechanism to "know" whether the information they are generating is factually true or false.
+
 ---
 
 ## Practical summary
